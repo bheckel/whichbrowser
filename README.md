@@ -37,10 +37,20 @@ WhichBrowser lets you set per-domain browser preferences so links open exactly w
 ## Installation
 
 ### For Users
-Download the latest APK from the [Releases](https://github.com/yourusername/WhichBrowser/releases) page.
+
+Download the latest APK from the [Releases](https://github.com/bheckel/WhichBrowser/releases) page.
 
 ### For Developers
+
 ```bash
 git clone git@github.com:bheckel/WhichBrowser.git
 cd WhichBrowser
-# Open the project in Android Studio
+```
+Open the project in Android Studio
+Sync Gradle and run on your device or emulator.
+
+### Contributing
+- Contributions are welcome! Feel free to open issues or submit pull requests.
+
+### License
+- MIT License

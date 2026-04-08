@@ -18,6 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -28,7 +29,16 @@ fun BrowserChooserScreen(incomingUrl: Uri?) {
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("whichbrowser_prefs", Context.MODE_PRIVATE)
 
-    val domain = incomingUrl?.host?.removePrefix("www.")?.lowercase() ?: ""
+    val domain = remember(incomingUrl) {
+        val originalHost = incomingUrl?.host ?: ""
+        // If it's a Google redirector, try to extract the real destination host
+        val targetUrl = if (originalHost.contains("google.")) {
+            incomingUrl?.getQueryParameter("url") ?: incomingUrl?.getQueryParameter("q")
+        } else null
+
+        val effectiveHost = targetUrl?.let { Uri.parse(it).host } ?: originalHost
+        effectiveHost.removePrefix("www.").lowercase()
+    }
 
     // Load saved browser for this exact domain
     val savedBrowserForDomain = prefs.getString("domain_$domain", null)
@@ -64,24 +74,17 @@ fun BrowserChooserScreen(incomingUrl: Uri?) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(24.dp)
+            .statusBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(40.dp))
         Text(
-            text = "Where to open this?",
+            text = "Which Browser?",
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
-
-        if (incomingUrl != null) {
-            Text(
-                text = incomingUrl.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-        }
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -114,10 +117,22 @@ fun BrowserChooserScreen(incomingUrl: Uri?) {
 
                         context.startActivity(intent)
                         (context as? ComponentActivity)?.finish()
+
                     }
                 )
             }
         }
+        if (incomingUrl != null) {
+            val urlString = incomingUrl.toString()
+            val displayedUrl = if (urlString.length > 150) urlString.take(150) + "..." else urlString
+            Text(
+                text = displayedUrl,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+        }
+        Spacer(modifier = Modifier.height(100.dp))
 
         // Remember choice checkbox - always starts unchecked
         Row(
@@ -144,6 +159,12 @@ fun BrowserChooserScreen(incomingUrl: Uri?) {
 //            textAlign = TextAlign.Center
 //        )
     }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun BrowserChooserScreenPreview() {
+    BrowserChooserScreen(incomingUrl = Uri.parse("https://www.google.com"))
 }
 
 // Keep all your existing code below unchanged

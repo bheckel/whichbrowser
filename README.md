@@ -8,7 +8,7 @@ WhichBrowser lets you set per-domain browser preferences so links open exactly w
 ## Features
 
 - Per-domain browser selection
-- Currently works with Chrome, Edge, DuckDuckGo
+- Currently works with Chrome, Edge, DuckDuckGo (TODO - make dynamic)
 - Simple and lightweight
 - Quick domain management (TODO)
 
@@ -23,10 +23,11 @@ WhichBrowser lets you set per-domain browser preferences so links open exactly w
 ## How to Use
 
 1. Install the app
-2. Open a link in any app
-3. When prompted, choose **WhichBrowser** as the handler
-4. Select the domain and pick your preferred browser
-5. Future links to that domain will open in your chosen browser automatically
+2. Navigate to Settings : All apps : Browser app
+3. Choose WhichBrowser / "Yes" (make it your default browser)
+4. Make sure you have at least Chrome, Edge and DuckDuckGo installed
+5. Navigate to a webpage
+6. Choose which (real) browser to use. If checkbox is checked, future links to that domain will open in your chosen browser automatically
 
 ## Tech Stack
 

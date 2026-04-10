@@ -167,7 +167,6 @@ fun BrowserChooserScreenPreview() {
     BrowserChooserScreen(incomingUrl = Uri.parse("https://www.google.com"))
 }
 
-// Keep all your existing code below unchanged
 data class BrowserOption(
     val label: String,
     val packageName: String,

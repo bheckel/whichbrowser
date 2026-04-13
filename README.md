@@ -14,7 +14,7 @@ WhichBrowser lets you set per-domain browser preferences so links open with the 
 
 ## Screenshots
 
-[Main](whichbrowser.mp4)
+[Main](whichbrowser.gif)
 
 ## How to Use
 

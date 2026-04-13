@@ -15,7 +15,7 @@ WhichBrowser lets you set per-domain browser preferences so links open with the 
 ## Screenshots
 
 <p align="center">
-  <img src="whichbrowser.gif" width="600">
+  <img src="whichbrowser.gif" width="50%">
 </p>
 
 ## How to Use

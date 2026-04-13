@@ -2,8 +2,8 @@
 
 An Android app that gives **you** back control — choose which mobile browser to use for any specific domain.
 
-Tired of apps forcing you into Chrome, or always opening links in the default browser?  
-WhichBrowser lets you set per-domain browser preferences so links open exactly where you want them.
+Tired of always opening links in a single default browser?  
+WhichBrowser lets you set per-domain browser preferences so links open with the best browser for the job.
 
 ## Features
 
@@ -14,11 +14,7 @@ WhichBrowser lets you set per-domain browser preferences so links open exactly w
 
 ## Screenshots
 
-*TODO*
-
-| Main Screen | Domain List | Browser Picker |
-|-------------|-------------|----------------|
-| ![Main](screenshots/main.png) | ![Domains](screenshots/domains.png) | ![Picker](screenshots/picker.png) |
+[Main](whichbrowser.mp4)
 
 ## How to Use
 
@@ -51,7 +47,7 @@ Open the project in Android Studio
 Sync Gradle and run on your device or emulator.
 
 ### Contributing
-- Contributions are welcome! Feel free to open issues or submit pull requests.
+- Contributions are welcome.
 
 ### License
 - MIT License

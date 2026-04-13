@@ -12,10 +12,10 @@ WhichBrowser lets you set per-domain browser preferences so links open with the 
 - Simple and lightweight
 - Quick domain management (TODO)
 
-## Screenshots
+## Screen Recording
 
 <p align="center">
-  <img src="whichbrowser.gif" width="50%">
+  <img src="whichbrowser.gif" width="350">
 </p>
 
 ## How to Use

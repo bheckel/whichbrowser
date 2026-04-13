@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -80,6 +81,13 @@ fun BrowserChooserScreen(incomingUrl: Uri?) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(40.dp))
+        
+        Image(
+            painter = painterResource(id = R.drawable.witch),
+            contentDescription = "App Logo",
+            modifier = Modifier.size(80.dp)
+        )
+
         Text(
             text = "Which Browser?",
             style = MaterialTheme.typography.headlineMedium,

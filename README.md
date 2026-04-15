@@ -52,4 +52,4 @@ Sync Gradle and run on your device or emulator.
 - Contributions are welcome.
 
 ### License
-- MIT License
+- GNU GPL v3

@@ -39,6 +39,15 @@ android {
     }
 }
 
+androidComponents {
+    onVariants { variant ->
+        variant.outputs.forEach { output ->
+            val mainOutput = output as? com.android.build.api.variant.impl.VariantOutputImpl
+            mainOutput?.outputFileName?.set("whichbrowser.apk")
+        }
+    }
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -19,6 +19,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -85,7 +86,7 @@ fun BrowserChooserScreen(incomingUrl: Uri?) {
             .fillMaxSize()
             .padding(24.dp)
             .statusBarsPadding(),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(40.dp))
@@ -106,7 +107,7 @@ fun BrowserChooserScreen(incomingUrl: Uri?) {
 
         LazyColumn(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(browserList) { browser ->
                 BrowserRow(
@@ -129,7 +130,7 @@ fun BrowserChooserScreen(incomingUrl: Uri?) {
 
         if (incomingUrl != null) {
             val urlString = incomingUrl.toString()
-            val displayedUrl = if (urlString.length > 150) urlString.take(150) + "..." else urlString
+            val displayedUrl = if (urlString.length > 200) urlString.take(200) + "..." else urlString
             Text(
                 text = displayedUrl,
                 style = MaterialTheme.typography.bodyMedium,
@@ -138,12 +139,12 @@ fun BrowserChooserScreen(incomingUrl: Uri?) {
             )
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(60.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Absolute.Left
         ) {
             Checkbox(
                 checked = rememberChoice,
@@ -156,6 +157,7 @@ fun BrowserChooserScreen(incomingUrl: Uri?) {
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
+        Spacer(modifier = Modifier.height(1.dp))
     }
 }
 
@@ -202,7 +204,7 @@ fun BrowserRow(browser: BrowserOption, onClick: () -> Unit) {
 private fun getIconForPackage(context: Context, packageName: String): Drawable {
     return try {
         context.packageManager.getApplicationIcon(packageName)
-    } catch (e: PackageManager.NameNotFoundException) {
+    } catch (_: PackageManager.NameNotFoundException) {
         ContextCompat.getDrawable(context, android.R.drawable.ic_menu_compass)!!
     }
 }

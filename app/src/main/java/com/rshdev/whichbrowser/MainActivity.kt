@@ -25,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.rshdev.whichbrowser.ui.theme.WhichBrowserTheme
 
+import androidx.compose.runtime.*
+
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +40,22 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    BrowserChooserScreen(incomingUrl = incomingUrl)
+                    var currentScreen by remember { mutableStateOf(if (incomingUrl != null) "chooser" else "settings") }
+
+                    if (currentScreen == "chooser") {
+                        BrowserChooserScreen(
+                            incomingUrl = incomingUrl,
+                            onOpenSettings = { currentScreen = "settings" }
+                        )
+                    } else {
+                        SettingsScreen(onBack = { 
+                            if (incomingUrl != null) {
+                                currentScreen = "chooser"
+                            } else {
+                                finish()
+                            }
+                        })
+                    }
                 }
             }
         }

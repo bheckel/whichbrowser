@@ -37,7 +37,10 @@ import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
 
 @Composable
-fun BrowserChooserScreen(incomingUrl: Uri?) {
+fun BrowserChooserScreen(
+    incomingUrl: Uri?,
+    onOpenSettings: () -> Unit
+) {
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("whichbrowser_prefs", Context.MODE_PRIVATE)
 
@@ -94,7 +97,9 @@ fun BrowserChooserScreen(incomingUrl: Uri?) {
         Image(
             painter = painterResource(id = R.drawable.witch2),
             contentDescription = "App Logo",
-            modifier = Modifier.size(90.dp)
+            modifier = Modifier
+                .size(90.dp)
+                .clickable { onOpenSettings() }
         )
 
         Text(
@@ -164,7 +169,10 @@ fun BrowserChooserScreen(incomingUrl: Uri?) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun BrowserChooserScreenPreview() {
-    BrowserChooserScreen(incomingUrl = Uri.parse("https://www.google.com"))
+    BrowserChooserScreen(
+        incomingUrl = Uri.parse("https://www.google.com"),
+        onOpenSettings = {}
+    )
 }
 
 data class BrowserOption(

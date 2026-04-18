@@ -12,15 +12,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rshdev.whichbrowser.ui.theme.WhichBrowserTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    val prefs = context.getSharedPreferences("whichbrowser_prefs", Context.MODE_PRIVATE)
+    val prefs = remember { context.getSharedPreferences("whichbrowser_prefs", Context.MODE_PRIVATE) }
     
-    // In a real app, you'd use a ViewModel, but for now we'll read directly
     var savedDomains by remember { 
         mutableStateOf(
             prefs.all.filterKeys { it.startsWith("domain_") }
@@ -28,6 +28,23 @@ fun SettingsScreen(onBack: () -> Unit) {
         )
     }
 
+    SettingsScreenContent(
+        savedDomains = savedDomains,
+        onBack = onBack,
+        onDeleteDomain = { domain ->
+            prefs.edit().remove("domain_$domain").apply()
+            savedDomains = savedDomains.filter { it.first != domain }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreenContent(
+    savedDomains: List<Pair<String, String>>,
+    onBack: () -> Unit,
+    onDeleteDomain: (String) -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -53,7 +70,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                 items(savedDomains) { (domain, packageName) ->
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Row(
-                            modifier = Modifier.padding(16.dp),
+                            modifier = Modifier.padding(5.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
@@ -61,8 +78,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                                 Text(text = packageName, style = MaterialTheme.typography.bodySmall)
                             }
                             IconButton(onClick = {
-                                prefs.edit().remove("domain_$domain").apply()
-                                savedDomains = savedDomains.filter { it.first != domain }
+                                onDeleteDomain(domain)
                             }) {
                                 Icon(Icons.Default.Delete, contentDescription = "Delete")
                             }
@@ -71,5 +87,21 @@ fun SettingsScreen(onBack: () -> Unit) {
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SettingsScreenPreview() {
+    WhichBrowserTheme {
+        SettingsScreenContent(
+            savedDomains = listOf(
+                "google.com" to "com.android.chrome",
+                "github.com" to "org.mozilla.firefox",
+                "example.org" to "com.microsoft.emmx"
+            ),
+            onBack = {},
+            onDeleteDomain = {}
+        )
     }
 }

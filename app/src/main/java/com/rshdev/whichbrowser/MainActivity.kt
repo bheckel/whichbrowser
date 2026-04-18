@@ -15,6 +15,7 @@ import androidx.compose.material3.Surface
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +31,7 @@ import androidx.compose.runtime.*
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
 
         val incomingUrl: Uri? = intent?.data
@@ -40,7 +42,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    var currentScreen by remember { mutableStateOf(if (incomingUrl != null) "chooser" else "settings") }
+                    var currentScreen by remember { 
+                        mutableStateOf(
+                            if (incomingUrl != null) "chooser" else "settings"
+                        ) 
+                    }
 
                     if (currentScreen == "chooser") {
                         BrowserChooserScreen(

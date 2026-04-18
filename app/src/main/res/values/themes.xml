@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <style name="Theme.WhichBrowser" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- The background color of the splash screen -->
+        <item name="windowSplashScreenBackground">#1C1B1F</item>
+        <!-- The icon to display in the center -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/witch2</item>
+        <!-- The duration (on older Android versions) - doesn't affect the actual ready signal -->
+        <item name="postSplashScreenTheme">@style/Theme.WhichBrowser</item>
+    </style>
 </resources>

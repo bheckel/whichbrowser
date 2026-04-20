@@ -9,32 +9,29 @@
 //MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 package com.rshdev.whichbrowser
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import androidx.compose.material3.Surface
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.rshdev.whichbrowser.ui.theme.WhichBrowserTheme
 
-import androidx.compose.runtime.*
-
 class MainActivity : ComponentActivity() {
+
+    private var incomingUrlState = mutableStateOf<Uri?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        val incomingUrl: Uri? = intent?.data
+        // Reverting to direct intent data as requested
+        incomingUrlState.value = intent?.data
 
         setContent {
             WhichBrowserTheme {
@@ -42,7 +39,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    var currentScreen by remember { 
+                    val incomingUrl by incomingUrlState
+                    
+                    var currentScreen by remember(incomingUrl) { 
                         mutableStateOf(
                             if (incomingUrl != null) "chooser" else "settings"
                         ) 
@@ -65,5 +64,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        incomingUrlState.value = intent.data
     }
 }

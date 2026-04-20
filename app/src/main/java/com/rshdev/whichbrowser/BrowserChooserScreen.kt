@@ -19,7 +19,6 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -29,9 +28,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
@@ -42,11 +41,11 @@ fun BrowserChooserScreen(
     onOpenSettings: () -> Unit
 ) {
     val context = LocalContext.current
-    val prefs = context.getSharedPreferences("whichbrowser_prefs", Context.MODE_PRIVATE)
+    val prefs = remember { context.getSharedPreferences("whichbrowser_prefs", Context.MODE_PRIVATE) }
 
     val domain = remember(incomingUrl) {
         val originalHost = incomingUrl?.host ?: ""
-        // If it's a Google redirector, try to extract the real destination host
+        // Restoring the specific unwrapping logic for Google inside the chooser as requested
         val targetUrl = if (originalHost.contains("google.")) {
             incomingUrl?.getQueryParameter("url") ?: incomingUrl?.getQueryParameter("q")
         } else null
@@ -55,34 +54,42 @@ fun BrowserChooserScreen(
         effectiveHost.removePrefix("www.").lowercase()
     }
 
-    val savedBrowserForDomain = prefs.getString("domain_$domain", null)
+    val savedBrowserForDomain = remember(domain) { prefs.getString("domain_$domain", null) }
 
-    // If we have a saved browser for this domain → auto open and finish
+    // Auto-open logic
     if (savedBrowserForDomain != null && incomingUrl != null) {
-        LaunchedEffect(Unit) {
-            val intent = Intent(Intent.ACTION_VIEW, incomingUrl)
-                .setPackage(savedBrowserForDomain)
-            
-            Toast.makeText(context, "Opening saved browser for $domain", Toast.LENGTH_SHORT).show()
-            
-            context.startActivity(intent)
-            (context as? ComponentActivity)?.finish()
+        LaunchedEffect(domain) {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, incomingUrl).setPackage(savedBrowserForDomain)
+                context.startActivity(intent)
+                (context as? ComponentActivity)?.finish()
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error opening saved browser", Toast.LENGTH_SHORT).show()
+            }
         }
-
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
         return
     }
 
-    // No saved browser for this domain → show chooser
     var rememberChoice by rememberSaveable { mutableStateOf(false) }
 
-    val browserList = listOf(
-        BrowserOption("Chrome", "com.android.chrome", getIconForPackage(context, "com.android.chrome")),
-        BrowserOption("Edge", "com.microsoft.emmx", getIconForPackage(context, "com.microsoft.emmx")),
-        BrowserOption("DuckDuckGo", "com.duckduckgo.mobile.android", getIconForPackage(context, "com.duckduckgo.mobile.android"))
-    )
+    // Dynamic browser listing (Feature #1) optimized to avoid ANRs
+    val browserList = remember {
+        val pm = context.packageManager
+        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"))
+        val resolveInfos = pm.queryIntentActivities(browserIntent, PackageManager.MATCH_ALL)
+        
+        resolveInfos.map { info ->
+            BrowserOption(
+                label = info.loadLabel(pm).toString(),
+                packageName = info.activityInfo.packageName,
+                icon = info.loadIcon(pm)
+            )
+        }.filter { it.packageName != context.packageName } // Don't list ourselves
+         .distinctBy { it.packageName }
+    }
 
     Column(
         modifier = Modifier
@@ -118,51 +125,43 @@ fun BrowserChooserScreen(
                 BrowserRow(
                     browser = browser,
                     onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, incomingUrl)
-                            .setPackage(browser.packageName)
-
-                        if (rememberChoice) {
-                            prefs.edit().putString("domain_$domain", browser.packageName).apply()
-                            Toast.makeText(context, "✓ Saved ${browser.label} for $domain", Toast.LENGTH_SHORT).show()
+                        if (incomingUrl != null) {
+                            val intent = Intent(Intent.ACTION_VIEW, incomingUrl).setPackage(browser.packageName)
+                            if (rememberChoice) {
+                                prefs.edit().putString("domain_$domain", browser.packageName).apply()
+                            }
+                            context.startActivity(intent)
+                            (context as? ComponentActivity)?.finish()
                         }
-
-                        context.startActivity(intent)
-                        (context as? ComponentActivity)?.finish()
                     }
                 )
             }
         }
 
         if (incomingUrl != null) {
-            val urlString = incomingUrl.toString()
-            val displayedUrl = if (urlString.length > 200) urlString.take(200) + "..." else urlString
             Text(
-                text = displayedUrl,
-                style = MaterialTheme.typography.bodyMedium,
+                text = incomingUrl.toString(),
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                maxLines = 2
             )
         }
 
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Absolute.Left
+            modifier = Modifier.fillMaxWidth().clickable { rememberChoice = !rememberChoice },
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Checkbox(
-                checked = rememberChoice,
-                onCheckedChange = { rememberChoice = it }
-            )
+            Checkbox(checked = rememberChoice, onCheckedChange = { rememberChoice = it })
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Remember my choice for $domain",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground
+                text = "Remember choice for $domain",
+                style = MaterialTheme.typography.bodyMedium
             )
         }
-        Spacer(modifier = Modifier.height(1.dp))
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 
@@ -175,11 +174,7 @@ fun BrowserChooserScreenPreview() {
     )
 }
 
-data class BrowserOption(
-    val label: String,
-    val packageName: String,
-    val icon: Drawable
-)
+data class BrowserOption(val label: String, val packageName: String, val icon: Drawable)
 
 @Composable
 fun BrowserRow(browser: BrowserOption, onClick: () -> Unit) {
@@ -189,9 +184,7 @@ fun BrowserRow(browser: BrowserOption, onClick: () -> Unit) {
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier
-                .clickable(onClick = onClick)
-                .padding(16.dp),
+            modifier = Modifier.clickable(onClick = onClick).padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -200,11 +193,7 @@ fun BrowserRow(browser: BrowserOption, onClick: () -> Unit) {
                 contentDescription = browser.label,
                 modifier = Modifier.size(40.dp)
             )
-            Text(
-                text = browser.label,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground
-            )
+            Text(text = browser.label, style = MaterialTheme.typography.bodyLarge)
         }
     }
 }
@@ -212,7 +201,7 @@ fun BrowserRow(browser: BrowserOption, onClick: () -> Unit) {
 private fun getIconForPackage(context: Context, packageName: String): Drawable {
     return try {
         context.packageManager.getApplicationIcon(packageName)
-    } catch (_: PackageManager.NameNotFoundException) {
+    } catch (_: Exception) {
         ContextCompat.getDrawable(context, android.R.drawable.ic_menu_compass)!!
     }
 }

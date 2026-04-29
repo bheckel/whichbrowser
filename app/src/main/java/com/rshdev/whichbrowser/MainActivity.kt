@@ -30,7 +30,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        // Reverting to direct intent data as requested
         incomingUrlState.value = intent?.data
 
         setContent {

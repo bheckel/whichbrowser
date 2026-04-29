@@ -45,7 +45,6 @@ fun BrowserChooserScreen(
 
     val domain = remember(incomingUrl) {
         val originalHost = incomingUrl?.host ?: ""
-        // Restoring the specific unwrapping logic for Google inside the chooser as requested
         val targetUrl = if (originalHost.contains("google.")) {
             incomingUrl?.getQueryParameter("url") ?: incomingUrl?.getQueryParameter("q")
         } else null
